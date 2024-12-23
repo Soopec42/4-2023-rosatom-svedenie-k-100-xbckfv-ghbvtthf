@@ -1,0 +1,84 @@
+#include <set>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <map>
+#include <cassert>
+#include <unordered_map>
+using namespace std;
+using ll = long long;
+
+int ask(int l, int r, vector<int>& v, map<int, vector<int>>& ips) {
+    unordered_map<int, int> cnts;
+    if (r - l < 200) {
+        for (int i = l; i < r; ++i)
+            ++cnts[v[i]];
+    }
+    else {
+        set<int> ban;
+        for (int i = 0; i < 100; ++i) {
+            int len = (r - l);
+            int pos = l + rand() % len;
+            if (ban.find(pos) != ban.end())
+                continue;
+            ban.insert(pos);
+            ++cnts[v[pos]];
+        }
+    }
+    int mx_val = v[l];
+    int mx_count = cnts[mx_val];
+    for (const auto& [val, count] : cnts) {
+        if (mx_count < count) {
+            mx_val = val;
+            mx_count = count;
+        }
+    }
+    int len = (r - l);
+    int count = lower_bound(ips[mx_val].begin(), ips[mx_val].end(), r) -
+                lower_bound(ips[mx_val].begin(), ips[mx_val].end(), l);
+    if (count * 3 >= len * 2) {
+        return mx_val;
+    }
+    return -1;
+}
+
+
+
+
+void solve() {
+    int n;
+    cin >> n;
+    vector<int> v(n);
+    for(auto& x : v) {
+        cin >> x;
+        assert(1 <= x && x <= 1e9);
+    }
+    map<int, vector<int>> ips;
+    for (int i = 0; i < n; ++i) {
+        ips[v[i]].push_back(i);
+    }
+    int q;
+    cin >> q;
+    while (q--) {
+        int l, r;
+        cin >> l >> r;
+        assert(1 <= l && r <= n);
+        --l;
+        int res = ask(l, r, v, ips);
+        cout << res << '\n';
+    }
+}
+
+
+
+
+int main() {
+    srand(time(NULL));
+    cin.tie(NULL);
+    cout.tie(NULL);
+    ios_base::sync_with_stdio(false);
+    int t = 1; // cin >> t;
+    while (t--)
+        solve();
+    return 0;
+}
